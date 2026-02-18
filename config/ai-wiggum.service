@@ -1,0 +1,47 @@
+# Systemd service file for Wiggum Loop
+# Install to: /etc/systemd/system/ai-wiggum.service
+#
+# Installation:
+#   sudo cp /home/claude/iris/config/ai-wiggum.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable ai-wiggum
+#   sudo systemctl start ai-wiggum
+#
+# Management:
+#   sudo systemctl status ai-wiggum
+#   sudo systemctl restart ai-wiggum
+#   sudo journalctl -u ai-wiggum -f
+
+[Unit]
+Description=AI Assistant Wiggum Loop (Controller Respawn)
+After=network.target
+
+[Service]
+Type=simple
+User=claude
+WorkingDirectory=/home/claude
+Environment="PATH=/home/claude/.local/bin:/usr/local/bin:/usr/bin:/bin"
+
+# Development path (current): /home/claude/iris/wiggum.sh
+# Production path (deployment): /opt/ai-assistant/wiggum.sh
+# Update this path when deploying to production
+ExecStart=/home/claude/iris/wiggum.sh
+
+Restart=always
+RestartSec=5
+
+# Resource limits (wiggum itself should be tiny, ~5MB)
+MemoryMax=256M
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
+# Notes:
+# - The wiggum loop itself is just a bash script that checks for tmux session
+# - If controller crashes/exits, wiggum spawns a new one
+# - Systemd ensures wiggum itself never dies
+# - This creates an effectively immortal controller

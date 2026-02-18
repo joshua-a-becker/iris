@@ -1,0 +1,57 @@
+# Credentials and secrets
+**/credentials.json
+**/.env
+*.key
+*.pem
+state.json
+
+# Database files (we include schema, not data)
+*.db
+*.db-shm
+*.db-wal
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.pytest_cache/
+
+# Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+.temp/
+
+# Runtime/sensitive config
+config/email-whitelist.json
+logs/
+drafts/
+scripts/*_log.txt
+scripts/*_watch.py
+
+# Memory directories (local runtime data, not for public repo)
+memory-legacy/
+memory/
+
+# Sensitive service configs and email archives
+docs/services/
+docs/emails/

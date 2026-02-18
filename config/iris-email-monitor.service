@@ -1,0 +1,11 @@
+[Unit]
+Description=IRIS Email Monitor - Check for new emails
+After=network.target
+
+[Service]
+Type=oneshot
+User=claude
+WorkingDirectory=/home/claude/iris
+ExecStart=/home/claude/iris/email-monitor.sh
+StandardOutput=append:/home/claude/iris/email-monitor.log
+StandardError=append:/home/claude/iris/email-monitor.log

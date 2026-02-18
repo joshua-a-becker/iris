@@ -1,0 +1,167 @@
+EMAIL THREADING FLOW DIAGRAM
+============================
+
+SCENARIO 1: Simple Reply (Single Message Thread)
+-------------------------------------------------
+
+Original Email:
+    Message-ID: <msg-1@example.com>
+    From: alice@example.com
+    Subject: Question about project
+
+Reply (using new functionality):
+    Message-ID: <msg-2@example.com>
+    In-Reply-To: <msg-1@example.com>          ← NEW HEADER
+    References: <msg-1@example.com>           ← NEW HEADER (auto-added)
+    From: iris@[YOUR_DOMAIN]
+    Subject: Re: Question about project
+
+Email Client Display:
+    ┌─ Question about project
+    │  └─ Re: Question about project         ← Properly threaded!
+
+
+SCENARIO 2: Multi-Message Thread
+---------------------------------
+
+Message 1:
+    Message-ID: <msg-1@example.com>
+    Subject: Project discussion
+
+Message 2 (Reply to 1):
+    Message-ID: <msg-2@example.com>
+    In-Reply-To: <msg-1@example.com>
+    References: <msg-1@example.com>
+
+Message 3 (Reply to 2):
+    Message-ID: <msg-3@example.com>
+    In-Reply-To: <msg-2@example.com>
+    References: <msg-1@example.com> <msg-2@example.com>
+
+Your Reply (using new functionality):
+    Message-ID: <msg-4@example.com>
+    In-Reply-To: <msg-3@example.com>         ← Points to immediate parent
+    References: <msg-1@example.com> <msg-2@example.com> <msg-3@example.com>
+                └─ Full conversation chain
+
+Email Client Display:
+    ┌─ Project discussion
+    │  ├─ Re: Project discussion (Message 2)
+    │  │  └─ Re: Project discussion (Message 3)
+    │  │     └─ Re: Project discussion (Your reply) ← Properly threaded!
+
+
+SCENARIO 3: New Conversation (No Threading)
+--------------------------------------------
+
+New Email:
+    Message-ID: <new-msg@example.com>
+    From: iris@[YOUR_DOMAIN]
+    Subject: New topic
+    [No In-Reply-To or References headers]
+
+Email Client Display:
+    New topic                                 ← Standalone message
+
+
+CODE EXAMPLES
+=============
+
+Example 1: Simple Reply
+-----------------------
+send_email(
+    to="alice@example.com",
+    subject="Re: Question about project",
+    body="Here's my answer...",
+    in_reply_to="<msg-1@example.com>"
+    # references automatically set to "<msg-1@example.com>"
+)
+
+Example 2: Complex Thread Reply
+--------------------------------
+send_email(
+    to="alice@example.com",
+    subject="Re: Project discussion",
+    body="Continuing the conversation...",
+    in_reply_to="<msg-3@example.com>",
+    references="<msg-1@example.com> <msg-2@example.com> <msg-3@example.com>"
+)
+
+Example 3: New Conversation
+----------------------------
+send_email(
+    to="bob@example.com",
+    subject="New project idea",
+    body="Let's discuss..."
+    # No in_reply_to or references - starts new thread
+)
+
+
+DATA FLOW THROUGH THE SYSTEM
+==============================
+
+1. INCOMING EMAIL
+   └─> read_mbox.py extracts headers
+       ├─ Message-ID: <msg-1@example.com>
+       ├─ In-Reply-To: <previous@example.com>
+       └─ References: <thread-start@example.com> <previous@example.com>
+
+2. STORAGE
+   └─> sync_emails() stores in index.json
+       {
+         "abc123def456": {
+           "message_id": "<msg-1@example.com>",
+           "in_reply_to": "<previous@example.com>",
+           "references": "<thread-start@example.com> <previous@example.com>",
+           ...
+         }
+       }
+
+3. DISPLAY
+   └─> read_email() / check_email() shows headers
+       Message-ID: <msg-1@example.com>
+       In-Reply-To: <previous@example.com>
+       References: <thread-start@example.com> <previous@example.com>
+       ...
+
+4. REPLY
+   └─> send_email() includes headers
+       ├─ Postmark API path: Headers array
+       └─ Sendmail path: RFC 5322 headers
+
+
+HEADER FORMAT SPECIFICATION
+============================
+
+Message-ID Format:
+    <unique-identifier@domain.com>
+    - Must include angle brackets
+    - Should be unique
+    - Contains @ symbol with domain
+
+In-Reply-To Format:
+    <message-id@domain.com>
+    - Single Message-ID
+    - Points to immediate parent
+
+References Format:
+    <msg-1@domain.com> <msg-2@domain.com> <msg-3@domain.com>
+    - Space-separated Message-IDs
+    - Contains full thread history
+    - Ordered chronologically
+
+
+BENEFITS
+========
+
+✓ Conversations stay organized
+✓ Easy to follow email threads
+✓ Works in all major email clients:
+  - Gmail
+  - Outlook
+  - Apple Mail
+  - Thunderbird
+  - iOS Mail
+  - Android Mail
+✓ Professional email etiquette
+✓ RFC standards compliant

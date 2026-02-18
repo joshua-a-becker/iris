@@ -1,0 +1,21 @@
+[Unit]
+Description=IRIS Email Watcher - Event-driven email monitor (inotify)
+After=network.target
+Documentation=file:///home/claude/iris/README.md
+
+[Service]
+Type=simple
+User=claude
+WorkingDirectory=/home/claude/iris
+ExecStart=/home/claude/iris/email-watcher.py
+Restart=always
+RestartSec=5s
+StandardOutput=append:/home/claude/iris/email-watcher.log
+StandardError=append:/home/claude/iris/email-watcher.log
+
+# Resource limits
+CPUQuota=10%
+MemoryMax=100M
+
+[Install]
+WantedBy=default.target

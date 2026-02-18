@@ -1,0 +1,20 @@
+[Unit]
+Description=IRIS - Autonomous AI Agent System
+After=network.target
+
+[Service]
+Type=simple
+User=claude
+WorkingDirectory=/home/claude/iris
+ExecStart=/home/claude/iris/iris-main.sh
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Ensure clean shutdown
+TimeoutStopSec=30
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target

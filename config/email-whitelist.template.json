@@ -1,0 +1,36 @@
+{
+  "_comment": "Email whitelist configuration - controls who can receive conversational engagement from Iris",
+  "_last_updated": "YYYY-MM-DD",
+
+  "authoritative": [
+    {
+      "email": "owner@example.com",
+      "name": "Owner Name",
+      "role": "Owner",
+      "notes": "Always authoritative - can give instructions and make system changes"
+    }
+  ],
+
+  "conversational": [
+    {
+      "name": "Contact Name",
+      "affiliation": "Affiliation or Organization",
+      "source": "https://source-url-or-omit"
+    }
+  ],
+
+  "family": [
+    {
+      "name": "Family Member Name",
+      "relationship": "Relationship (e.g. Father, Mother, Sibling)",
+      "aliases": ["Optional nickname"]
+    }
+  ],
+
+  "_usage_notes": {
+    "authoritative": "Can give instructions, make system changes, full trust",
+    "conversational": "Can receive full conversational AI engagement, helpful responses",
+    "family": "Can receive full conversational AI engagement, helpful responses",
+    "unknown_senders": "Professional PA response + forward to owner for approval"
+  }
+}

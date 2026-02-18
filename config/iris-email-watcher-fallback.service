@@ -1,0 +1,21 @@
+[Unit]
+Description=IRIS Email Watcher - Fallback polling-based monitor (1-second)
+After=network.target
+Documentation=file:///home/claude/iris/README.md
+
+[Service]
+Type=simple
+User=claude
+WorkingDirectory=/home/claude/iris
+ExecStart=/home/claude/iris/email-watcher-fallback.sh
+Restart=always
+RestartSec=5s
+StandardOutput=append:/home/claude/iris/email-watcher-fallback.log
+StandardError=append:/home/claude/iris/email-watcher-fallback.log
+
+# Resource limits
+CPUQuota=10%
+MemoryMax=100M
+
+[Install]
+WantedBy=default.target
