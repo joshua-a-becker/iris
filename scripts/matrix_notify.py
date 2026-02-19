@@ -16,8 +16,8 @@ from datetime import datetime
 # ---------------------------------------------------------------------------
 CREDENTIALS_FILE = "/home/claude/.config/iris/matrix_credentials.json"
 SYNC_TOKEN_FILE = "/tmp/iris_matrix_last_sync"
-IRIS_USER_ID = "@iris:matrix.example.com"
-NOTIFY_EMAIL = "iris@[YOUR_DOMAIN]"
+IRIS_USER_ID = "@iris:matrix.campaignlab.uk"
+NOTIFY_EMAIL = "iris@joshua-becker.com"
 
 # ---------------------------------------------------------------------------
 # Email

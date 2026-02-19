@@ -76,14 +76,16 @@ Each template includes:
 
 ## Scripts Directory
 
-### /home/claude/iris/scripts/mail/
+### /home/claude/mail-mcp/ (canonical email tools)
 
-Email handling tools.
+Email handling tools. The canonical location is `~/mail-mcp/`, not `iris/scripts/mail/`.
+The `iris/scripts/mail/` directory contains only a stale `server.py.old` backup — it is NOT the live server.
 
-| File | Purpose | Source | Status |
-|------|---------|--------|--------|
-| `server.py` | MCP email server (18KB, 653 lines) | Copied from ~/mail-mcp/ | ✅ Ready to use |
-| `read_mbox.py` | Mbox reader utility | Copied from ~/mail-mcp/ | ✅ Ready to use |
+| File | Purpose | Status |
+|------|---------|--------|
+| `~/mail-mcp/server.py` | MCP email server (live, active) | ✅ Ready to use |
+| `~/mail-mcp/read_mbox.py` | Mbox reader (with attachment support) | ✅ Ready to use |
+| `iris/scripts/mail/server.py.old` | Old backup (stale, pre-Feb-18) | ❌ Dead — do not use |
 
 **Functions available:**
 - `check_new_emails()` - Sync mailbox and show unread
@@ -94,7 +96,7 @@ Email handling tools.
 **Usage from controller:**
 ```python
 import sys
-sys.path.append('/home/claude/iris/scripts/mail')
+sys.path.append('/home/claude/mail-mcp')
 from server import check_new_emails, read_email, send_email
 ```
 
@@ -106,7 +108,7 @@ State and database management.
 |------|---------|--------|--------|
 | `db.py` | Database helper module (416 lines) | Copied from ~/memory/ | ✅ Ready to use |
 
-**Database:** /home/claude/memory/iris.db (shared with live system)
+**Database:** /home/claude/iris/scripts/state/iris.db (active; path resolved dynamically via __file__)
 
 **Tables:**
 - `tasks` - Task tracking (id, status, priority, title, description, result)
@@ -216,10 +218,11 @@ These will be created during Phase 2 implementation:
 - Directories: 8
 - Files: 11 (4 skeleton, 4 complete, 3 copied tools)
 
-**Copied tools:**
-- `scripts/mail/server.py` - 18KB (653 lines)
-- `scripts/mail/read_mbox.py` - 2KB (79 lines)
-- `scripts/state/db.py` - 14KB (416 lines)
+**Active tools (canonical locations):**
+- `~/mail-mcp/server.py` - email MCP server (live)
+- `~/mail-mcp/read_mbox.py` - mbox reader with attachment support
+- `scripts/state/db.py` - database helper (active DB: scripts/state/iris.db)
+- `scripts/mail/server.py.old` - stale pre-Feb-18 backup (dead, kept for reference only)
 
 **Documentation:**
 - `revised-architecture.md` - 30KB (complete architecture)
@@ -231,7 +234,7 @@ These will be created during Phase 2 implementation:
 ### With Live System
 
 **Current directories that will be used:**
-- Database: /home/claude/memory/iris.db (shared)
+- Database: /home/claude/iris/scripts/state/iris.db (active)
 - Email storage: /home/claude/docs/emails/ (shared)
 - Email index: /home/claude/docs/emails/index.json (shared)
 

@@ -610,7 +610,6 @@ df -h
 - `scripts/state/state_manager.py` - State persistence (450+ lines)
 - `scripts/state/db.py` - Database helper (copied from memory)
 - `scripts/mail/server.py` - Email tools (copied from mail-mcp)
-- `scripts/mail/read_mbox.py` - Mbox reader (copied from mail-mcp)
 
 ### Worker Templates (5)
 

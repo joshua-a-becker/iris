@@ -106,7 +106,7 @@ This is **NOT** a design flaw in the email monitor architecture. This is an **op
 
 **Why:** Solves automatic restart, health monitoring, boot persistence, and logging in one shot.
 
-**Status:** Design already complete at `/home/claude/scripts/SYSTEMD_SERVICE_DESIGN.md`
+**Status:** Design archived at `/home/claude/iris-v1-archive/scripts/SYSTEMD_SERVICE_DESIGN.md` (systemd service now deployed as `/etc/systemd/system/iris.service`)
 
 **Implementation effort:** 2-3 hours (per existing design doc)
 
@@ -124,7 +124,7 @@ This is **NOT** a design flaw in the email monitor architecture. This is an **op
 **Rollback:** Easy. Keep tmux as backup method.
 
 **Deployment steps:**
-1. Review `/home/claude/scripts/SYSTEMD_SERVICE_DESIGN.md` (already written)
+1. Review `/home/claude/iris-v1-archive/scripts/SYSTEMD_SERVICE_DESIGN.md` (already written)
 2. Implement Python wrapper script (`iris-service.py`)
 3. Create systemd service file (`/etc/systemd/system/iris.service`)
 4. Test in parallel with tmux session (don't replace until proven)

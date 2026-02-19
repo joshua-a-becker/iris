@@ -368,6 +368,17 @@ def main():
         # Monitor until exit
         returncode = monitor_claude()
 
+        # Run session review after each Claude session ends
+        try:
+            sys.path.insert(0, str(HOME / "iris" / "scripts"))
+            from session_review import run_session_review, write_session_log
+            logger.info("Running post-session review...")
+            review = run_session_review(hours=6)
+            write_session_log(review, log_path=str(HOME / "iris" / "logs" / "session_log.md"))
+            logger.info("Session review written to session_log.md")
+        except Exception as e:
+            logger.error(f"Session review failed (non-fatal): {e}")
+
         if shutdown_requested:
             logger.info("Shutdown was requested, exiting normally")
             break

@@ -27,6 +27,18 @@ while true; do
     if ! tmux has-session -t iris 2>/dev/null; then
         echo "$(date): Controller not running, spawning..."
 
+        # Warm up the RAG embedding model before spawning the controller.
+        # This pre-loads sentence-transformers (~72s cold start) so that the
+        # first save_state() call inside the controller doesn't block or flood
+        # logs with model-load INFO messages.  Runs in the background so wiggum
+        # doesn't stall if warmup fails; the controller starts in parallel and
+        # update_memory_for_file() will skip indexing until the model is warm.
+        /home/claude/iris/venv/bin/python \
+            /home/claude/iris/scripts/rag/warmup.py \
+            >> /home/claude/iris/logs/rag-warmup.log 2>&1 &
+        RAG_WARMUP_PID=$!
+        echo "$(date): RAG warmup started in background (pid $RAG_WARMUP_PID)"
+
         # Spawn controller in tmux with iris prompt
         # Development path: /home/claude/iris/prompts/iris.md
         # Production path: /opt/ai-assistant/prompts/iris.md

@@ -52,6 +52,10 @@ scripts/*_watch.py
 memory-legacy/
 memory/
 
+# RAG vector database and index state (local runtime data, may contain personal paths/content)
+rag/
+scripts/rag/__pycache__/
+
 # Sensitive service configs and email archives
 docs/services/
 docs/emails/

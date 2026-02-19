@@ -118,7 +118,7 @@ def run_session_review(hours: int = 4) -> dict:
         patterns.append(f'{len(in_progress)} task(s) still in-progress at exit — checkpoint or hand off')
     if category_counts.get('error', 0) > 2:
         patterns.append('Multiple errors in one session — consider reviewing error-recovery.md')
-    if category_counts.get('session', 0) > 2:
+    if category_counts.get('session', 0) > 10:
         patterns.append('Many session events — possible restart loop, verify watchdog stability')
     if not patterns:
         patterns.append('No notable negative patterns detected')

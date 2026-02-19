@@ -371,11 +371,15 @@ with open(f'/home/claude/iris/tasks/{task_id}/analysis_checkpoint.json', 'w') as
 
 ```python
 import sqlite3
+import sys
 import pandas as pd
 from datetime import datetime, timedelta
 
-# Connect to database
-conn = sqlite3.connect('/home/claude/memory/iris.db')
+# Connect to database (active DB path)
+sys.path.append('/home/claude/iris/scripts/state')
+from db import get_recent_activity  # preferred: use db module helpers
+# Or for direct sqlite3 queries:
+conn = sqlite3.connect('/home/claude/iris/scripts/state/iris.db')
 
 # Query email activity
 query = """

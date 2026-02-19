@@ -111,25 +111,31 @@ def _db_log_received_email(message_id, from_addr, to_addr, subject, date):
     except Exception as _e:
         print(f"[mail-mcp] DB log_received_email failed: {_e}", file=sys.stderr)
 
-DOMAIN = os.environ.get("IRIS_DOMAIN", "example.com")
-DEFAULT_FROM = f"{os.environ.get('ASSISTANT_NAME', 'Iris')} <iris@{DOMAIN}>"
 EMAILS_DIR = Path("/home/claude/iris/docs/emails")
 INDEX_PATH = EMAILS_DIR / "index.json"
 READ_MBOX_SCRIPT = Path(__file__).parent / "read_mbox.py"
 
 # Postmark API configuration
 # Load credentials from postmark-account.sh
-def _load_postmark_credentials():
-    """Load Postmark credentials from shell script."""
+def _load_credentials():
+    """Load credentials from postmark-account.sh, falling back to environment."""
+    creds = {}
     creds_file = Path("/home/claude/iris/docs/services/postmark-account.sh")
     if creds_file.exists():
         with open(creds_file) as f:
             for line in f:
-                if line.startswith("export POSTMARK_API_TOKEN="):
-                    return line.split("=", 1)[1].strip()
-    return os.getenv("POSTMARK_API_TOKEN", "")
+                line = line.strip()
+                if line.startswith("export ") and "=" in line:
+                    key, _, val = line[len("export "):].partition("=")
+                    creds[key.strip()] = val.strip().strip('"').strip("'")
+    return creds
 
-POSTMARK_API_TOKEN = _load_postmark_credentials()
+_creds = _load_credentials()
+
+POSTMARK_API_TOKEN = _creds.get("POSTMARK_API_TOKEN") or os.getenv("POSTMARK_API_TOKEN", "")
+DOMAIN = _creds.get("IRIS_DOMAIN") or os.environ.get("IRIS_DOMAIN", "example.com")
+_assistant_name = _creds.get("ASSISTANT_NAME") or os.environ.get("ASSISTANT_NAME", "Iris")
+DEFAULT_FROM = f"{_assistant_name} <iris@{DOMAIN}>"
 POSTMARK_API_URL = "https://api.postmarkapp.com/email"
 POSTMARK_STREAM = "outbound"
 

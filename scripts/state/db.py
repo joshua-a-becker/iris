@@ -2,10 +2,10 @@
 Iris Task & State Database Helper Module
 
 SQLite-backed persistence for task tracking, activity logging, and state management.
-Database: /home/claude/memory/iris.db
+Database: /home/claude/iris/scripts/state/iris.db (resolved dynamically via __file__)
 
 Usage from CLI:
-    cd /home/claude/memory && python3 -c "from db import *; print(list_tasks())"
+    cd /home/claude/iris/scripts/state && python3 -c "from db import *; print(list_tasks())"
 """
 
 import sqlite3

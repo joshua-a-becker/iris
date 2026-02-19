@@ -30,6 +30,12 @@ import tempfile
 from datetime import datetime
 from typing import Dict, Any, Optional
 
+# Canonical schema version for state.json.
+# Increment this (e.g. "1.1" -> "1.2") whenever the top-level structure of
+# state.json changes: new top-level keys, removed keys, or changed semantics.
+# Minor field additions within existing nested dicts do NOT require a bump.
+SCHEMA_VERSION = "1.1"
+
 
 def _db_log_error(summary: str, details: str = None) -> None:
     """Log an error to iris.db activity_log. Silent on failure — avoids circular issues."""
@@ -51,7 +57,7 @@ def get_state_schema() -> Dict[str, Any]:
         Dictionary with expected state structure and default values
     """
     return {
-        "schema_version": "1.0",
+        "schema_version": SCHEMA_VERSION,
         "last_updated": None,
 
         "session": {
@@ -110,6 +116,43 @@ def initialize_state() -> Dict[str, Any]:
     return state
 
 
+# Valid keys for the active_tasks section. Any other keys are stale and will be
+# pruned automatically on load to prevent accumulation of one-off task fields.
+ACTIVE_TASKS_VALID_KEYS = {
+    'current_task',
+    'task_id',
+    'progress',
+    'checkpoints',
+    'spawned_workers',
+    'last_updated',
+}
+
+# Maximum number of hobby entries to keep in recent_context.hobbies_today.
+# The list is trimmed to this length (most-recent entries kept) on every save.
+HOBBIES_TODAY_MAX = 8
+
+
+def _cleanup_active_tasks(state: Dict[str, Any]) -> None:
+    """
+    Remove unrecognised keys from active_tasks in-place.
+
+    This prevents one-off task fields (e.g. surgery_schedule, watchdog_id)
+    from accumulating across sessions.  Removed keys are logged to iris.db.
+    """
+    active = state.get('active_tasks')
+    if not isinstance(active, dict):
+        return
+
+    stale_keys = [k for k in list(active.keys()) if k not in ACTIVE_TASKS_VALID_KEYS]
+    if stale_keys:
+        for key in stale_keys:
+            del active[key]
+        _db_log_error(
+            summary='active_tasks stale fields pruned on load',
+            details=f'Removed keys: {stale_keys}',
+        )
+
+
 def load_state(state_file: str = '/var/lib/ai-assistant/state.json') -> Dict[str, Any]:
     """
     Load state from JSON file. Return empty dict if not exists.
@@ -134,6 +177,10 @@ def load_state(state_file: str = '/var/lib/ai-assistant/state.json') -> Dict[str
     try:
         with open(state_file, 'r') as f:
             state = json.load(f)
+
+        # Cleanup stale active_tasks fields on every load
+        _cleanup_active_tasks(state)
+
         return state
 
     except json.JSONDecodeError as e:
@@ -179,6 +226,11 @@ def save_state(state: Dict[str, Any], state_file: str = '/var/lib/ai-assistant/s
         # Update timestamp
         state["last_updated"] = datetime.now().isoformat()
 
+        # Cap hobbies_today to prevent unbounded growth within a day
+        recent_ctx = state.get('recent_context')
+        if isinstance(recent_ctx, dict) and isinstance(recent_ctx.get('hobbies_today'), list):
+            recent_ctx['hobbies_today'] = recent_ctx['hobbies_today'][-HOBBIES_TODAY_MAX:]
+
         # Create parent directory if it doesn't exist
         state_dir = os.path.dirname(state_file)
         if state_dir and not os.path.exists(state_dir):
@@ -198,6 +250,15 @@ def save_state(state: Dict[str, Any], state_file: str = '/var/lib/ai-assistant/s
 
         # Atomic rename (overwrites existing file atomically)
         os.rename(temp_path, state_file)
+
+        # RAG: index updated state for working memory (best-effort, non-blocking)
+        try:
+            import sys as _sys
+            _sys.path.insert(0, '/home/claude/iris/scripts')
+            from rag.rag_utils import update_memory_for_file
+            update_memory_for_file(state_file, 'state')
+        except Exception:
+            pass  # RAG is enhancement only — never block state saves
 
         return True
 
